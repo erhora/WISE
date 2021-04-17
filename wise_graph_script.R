@@ -8,7 +8,8 @@ library(jpeg)
 
 # Reading in data and defining colors ----
 lmc_neowise_var <- read_csv("data/LMC_NEOWISE_VAR_limited.csv") %>% 
-  filter(!is.na(w1mpro) & !is.na(mjd))
+  filter(!is.na(w1mpro) & !is.na(mjd)) %>%
+  clean_names()
 
 
 
