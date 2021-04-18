@@ -1,5 +1,5 @@
 # WISE
-This shows how to use WISE data to make faceted plots containing all observations for Young Stellar Objects and making Lomb Scargle plots and Folded Light Curves for objects with more than 30 observations.
+This shows how to use WISE data to make faceted plots containing all observations for Young Stellar Objects and making Lomb Scargle plots and Folded Light Curves for objects with more than 30 observations. The script used to process any dataset following the requirements outlined in the *data folder* section can be used. This is the `wise_graph_script.R` file.
 
 ## data folder
 This contains a limited set of the WISE data with columns `seq` for the unique object identifier, `w1mpro` and `w2mpro`, or the measurement of brightness of an object, the `mjd`, when the observation was taken. You should be able to run this script on any file with columns with these names.
