@@ -8,15 +8,16 @@ library(jpeg)
 
 # Reading in data and defining colors ----
 lmc_neowise_var <- read_csv("data/LMC_NEOWISE_VAR_limited.csv") %>% 
-  filter(!is.na(w1mpro) & !is.na(mjd)) %>%
+  filter(!is.na(w1mpro) & !is.na(mjd)) %>% 
   clean_names()
 
 
+lmc_neowise_var <- read_csv("data/Cepheids_WISE.csv") %>% 
+  filter(!is.na(w1mpro) & !is.na(mjd)) %>% 
+  clean_names() %>% 
+  # source_01 is the equivalent of seq in the previous data set
+  rename(seq = source_01)
 
-# I defined my own custom twelve color palette because all others only go to eleven
-selected_colors <- list("#3D0202", "#D91212", "#E33D1F", "#5F4706", "#F2980E", 
-                        "#E8C20A", "#0AE8E0", "#0AA7CF", "#0A54CF", "#BB40DC", 
-                        "#6440DC", "#500863")
 
 
 # Adding in the `arbitrary_class` variable (grouping when observations were taken- going to a categorical variable)
@@ -26,12 +27,28 @@ lmc_neowise_var_class <- lmc_neowise_var %>%
 
 
 
+# I defined my own custom color palette because all others only go to eleven
+# depending on the number of classes, the list will select that many colors
+lmc_neowise_var_class_ar_class_dim <- lmc_neowise_var_class %>% 
+  distinct(ar_class) %>% 
+  dim()
+
+dim_int <- lmc_neowise_var_class_ar_class_dim[1]
+
+
+# R starts indexing at 1. Love that difference from Python
+selected_colors <- list("#3D0202", "#D91212", "#E33D1F", "#5F4706", "#F2980E", 
+                        "#E8C20A", "#0AE8E0", "#0AA7CF", "#0A54CF", "#BB40DC", 
+                        "#6440DC", "#500863", "#37084A", "#0C0211")[1:dim_int]
+
+
 
 
 # Pulling out sequence identifiers ----
 # Making a list of all the unique object identifiers and storing them as numerical values
 for (i in lmc_neowise_var_class %>% distinct(seq)){
-  output <- as.double(i)
+  # It is not neccessary for output to be a double with graphing, so I will leave it as the original type
+  output <- i
 } 
 
 
@@ -59,12 +76,12 @@ for (i in seq_along(output)){
       color = "Class Code",
       title = paste("Facet Plots for Object", output[i], sep = " ")
     ) 
-    # Saving the image using `ggsave` on a `ggobject`
-    ggsave(filename = paste("facet_", output[i], ".png", sep = ""),
+  # Saving the image using `ggsave` on a `ggobject`
+  ggsave(filename = paste("facet_", output[i], ".png", sep = ""),
          path = "facet_plots")
-    
-    # progress- this tells you which object the script is working through
-    print(output[i])
+  
+  # progress- this tells you which object the script is working through
+  print(output[i])
 } 
 
 
@@ -77,7 +94,7 @@ for (i in seq_along(output)){
   dim <- lmc_neowise_var_class %>%
     filter(seq == output[i]) %>%
     dim()
-
+  
   # Nesting an if statement within a for loop.
   # The for loop is needed to loop through the if statement for each object, so that is why I've ordered things this way.
   # A quick google search claims that 30 or more observations constitutes a large enough sample size
@@ -120,17 +137,17 @@ for (i in seq_along(output)){
     lmc_neowise_var_class_filter <- lmc_neowise_var_class %>%
       filter(seq == output[i]) %>%
       select(c(mjd, w1mpro, seq, ar_class))
-
-
-
+    
+    
+    
     lmc.spec <- lsp(lmc_neowise_var_class_filter$w1mpro, times = lmc_neowise_var_class_filter$mjd, from = 5, ofac = 5, type = "period")
-
-
+    
+    
     file_list[[i]] <-  lmc_neowise_var_class_filter %>%
       mutate(adj_mjd = mjd - min(lmc_neowise_var_class_filter %>%
                                    select(mjd)) - trunc((mjd - min(lmc_neowise_var_class_filter %>%
                                                                      select(mjd)))/lmc.spec$peak.at[1])*lmc.spec$peak.at[1]
-   )
+      )
   }
   print(output[i])
 } 
@@ -169,10 +186,10 @@ for (i in seq_along(output)){
         plot.title = element_text(size = 14, family = "serif", face = "bold", hjust = 0.5),
         axis.title = element_text(family = "serif")
       )
-  
-  # Saving the image using `ggsave` on a `ggobject`
-  ggsave(filename = paste("folded_light_curve_", output[i], ".png", sep = ""),
-         path = "folded_curve_plots")
+    
+    # Saving the image using `ggsave` on a `ggobject`
+    ggsave(filename = paste("folded_light_curve_", output[i], ".png", sep = ""),
+           path = "folded_curve_plots")
   }
   
   # progress- this tells you which object the script is working through
